@@ -15,16 +15,33 @@ async function fetchWithAuth(endpoint: string, options: RequestInit = {}) {
     credentials: "include",
     headers: {
       "Content-Type": "application/json",
+      Accept: "application/json",
       ...options.headers,
     },
   });
 
   if (!response.ok) {
-    throw new Error(`API call failed: ${response.statusText}`);
+    if (response.status === 401 || response.status === 403) {
+      window.location.href = "/login";
+      throw new Error("Authentication failed");
+    }
+
+    let errorMessage = `API call failed: ${response.statusText}`;
+    try {
+      const errorData = await response.json();
+      errorMessage = errorData.message || errorMessage;
+    } catch {
+      // If parsing json fails, use default message
+    }
+    throw new Error(errorMessage);
   }
 
-  // Some endpoints might not return JSON
-  if (response.headers.get("content-type")?.includes("application/json")) {
+  const contentType = response.headers.get("content-type");
+  if (response.status === 204 || !contentType) {
+    return null;
+  }
+
+  if (contentType.includes("application/json")) {
     return response.json();
   }
 
@@ -33,10 +50,15 @@ async function fetchWithAuth(endpoint: string, options: RequestInit = {}) {
 
 export const api = {
   login: async (name: string, email: string) => {
-    return fetchWithAuth("/auth/login", {
-      method: "POST",
-      body: JSON.stringify({ name, email }),
-    });
+    try {
+      return await fetchWithAuth("/auth/login", {
+        method: "POST",
+        body: JSON.stringify({ name, email }),
+      });
+    } catch (error) {
+      console.error("Login failed:", error);
+      throw error;
+    }
   },
 
   logout: async () => {
