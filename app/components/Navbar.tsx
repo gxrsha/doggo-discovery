@@ -10,7 +10,7 @@ export function Navbar() {
   const handleLogout = async () => {
     try {
       await api.logout();
-      router.push("/login");
+      window.location.href = "/login";
     } catch (error) {
       console.error("Failed to logout:", error);
     }
@@ -29,7 +29,7 @@ export function Navbar() {
             className="flex-shrink-0 flex items-center gap-2 hover:opacity-80 transition-opacity"
           >
             <FaBone className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
-            <h1 className="text-xl sm:text-3xl font-bold text-foreground truncate">
+            <h1 className="text-xl sm:text-3xl font-bold text-white truncate">
               Doggo Discovery
             </h1>
           </button>

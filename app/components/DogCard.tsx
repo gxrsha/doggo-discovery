@@ -24,7 +24,7 @@ export function DogCard({ dog, isFavorite, onToggleFavorite }: DogCardProps) {
 
       <div className="p-4">
         <div className="flex justify-between items-start">
-          <h3 className="text-lg font-semibold text-foreground">{dog.name}</h3>
+          <h3 className="text-lg font-semibold text-white">{dog.name}</h3>
           <button
             onClick={() => onToggleFavorite(dog.id)}
             className="text-red-500 hover:text-red-600"
@@ -40,15 +40,15 @@ export function DogCard({ dog, isFavorite, onToggleFavorite }: DogCardProps) {
         <dl className="mt-2 space-y-1 text-sm">
           <div className="flex justify-between">
             <dt className="text-gray-500 dark:text-gray-400">Breed:</dt>
-            <dd className="text-foreground">{dog.breed}</dd>
+            <dd className="text-white">{dog.breed}</dd>
           </div>
           <div className="flex justify-between">
             <dt className="text-gray-500 dark:text-gray-400">Age:</dt>
-            <dd className="text-foreground">{dog.age} years</dd>
+            <dd className="text-white">{dog.age} years</dd>
           </div>
           <div className="flex justify-between">
             <dt className="text-gray-500 dark:text-gray-400">Location:</dt>
-            <dd className="text-foreground">{dog.zip_code}</dd>
+            <dd className="text-white">{dog.zip_code}</dd>
           </div>
         </dl>
       </div>

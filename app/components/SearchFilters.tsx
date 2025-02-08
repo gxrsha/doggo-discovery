@@ -116,7 +116,7 @@ export function SearchFilters({
                 onChange={() => handleBreedChange(breed)}
                 className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
-              <span className="ml-2 text-sm text-foreground">{breed}</span>
+              <span className="ml-2 text-sm text-white">{breed}</span>
             </label>
           ))}
         </div>

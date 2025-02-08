@@ -40,12 +40,10 @@ export default function LoginPage() {
     >
       <div className="w-full max-w-md mx-4 md:mx-0 p-8 space-y-6 bg-[#1b1f26]/95 rounded-xl shadow-lg backdrop-blur-sm">
         <div className="text-center space-y-2">
-          <h2 className="text-xl font-medium text-foreground">Welcome to</h2>
+          <h2 className="text-xl font-medium text-white">Welcome to</h2>
           <div className="flex items-center justify-center gap-2">
             <FaBone className="h-8 w-8 text-white" />
-            <h1 className="text-3xl font-bold text-foreground">
-              Doggo Discovery
-            </h1>
+            <h1 className="text-3xl font-bold text-white">Doggo Discovery</h1>
           </div>
         </div>
 
@@ -53,7 +51,7 @@ export default function LoginPage() {
           <div>
             <label
               htmlFor="name"
-              className="block text-sm font-medium text-foreground"
+              className="block text-sm font-medium text-white"
             >
               Name
             </label>
@@ -70,7 +68,7 @@ export default function LoginPage() {
           <div>
             <label
               htmlFor="email"
-              className="block text-sm font-medium text-foreground"
+              className="block text-sm font-medium text-white"
             >
               Email
             </label>

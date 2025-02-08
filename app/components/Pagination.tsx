@@ -14,7 +14,7 @@ export function Pagination({
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
-        className="px-3 py-1 rounded-md bg-[#1b1f26]/95 backdrop-blur-sm border border-gray-600 disabled:opacity-50 text-foreground"
+        className="px-3 py-1 rounded-md bg-[#1b1f26]/95 backdrop-blur-sm border border-gray-600 disabled:opacity-50 text-white"
       >
         Previous
       </button>
@@ -24,7 +24,7 @@ export function Pagination({
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
-        className="px-3 py-1 rounded-md bg-[#1b1f26]/95 backdrop-blur-sm border border-gray-600 disabled:opacity-50 text-foreground"
+        className="px-3 py-1 rounded-md bg-[#1b1f26]/95 backdrop-blur-sm border border-gray-600 disabled:opacity-50 text-white"
       >
         Next
       </button>
