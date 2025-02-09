@@ -9,8 +9,17 @@ import {
   DogSearchParams,
 } from "../types/types";
 
+type LogMessage =
+  | string
+  | number
+  | boolean
+  | object
+  | null
+  | undefined
+  | unknown;
+
 const log = {
-  debug: (...args: any[]) => {
+  debug: (...args: LogMessage[]) => {
     const timestamp = new Date().toISOString();
     const message = `${timestamp} - ${args
       .map((arg) => (typeof arg === "object" ? JSON.stringify(arg) : arg))
@@ -22,7 +31,7 @@ const log = {
 
     console.debug(message);
   },
-  error: (...args: any[]) => {
+  error: (...args: LogMessage[]) => {
     const timestamp = new Date().toISOString();
     const message = `${timestamp} - ERROR - ${args
       .map((arg) => (typeof arg === "object" ? JSON.stringify(arg) : arg))
