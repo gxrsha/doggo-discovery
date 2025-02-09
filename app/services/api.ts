@@ -9,62 +9,124 @@ import {
   DogSearchParams,
 } from "../types/types";
 
+const log = {
+  debug: (...args: any[]) => {
+    const timestamp = new Date().toISOString();
+    const message = `${timestamp} - ${args
+      .map((arg) => (typeof arg === "object" ? JSON.stringify(arg) : arg))
+      .join(" ")}`;
+
+    const logs = JSON.parse(localStorage.getItem("api_logs") || "[]");
+    logs.push(message);
+    localStorage.setItem("api_logs", JSON.stringify(logs.slice(-100)));
+
+    console.debug(message);
+  },
+  error: (...args: any[]) => {
+    const timestamp = new Date().toISOString();
+    const message = `${timestamp} - ERROR - ${args
+      .map((arg) => (typeof arg === "object" ? JSON.stringify(arg) : arg))
+      .join(" ")}`;
+
+    const logs = JSON.parse(localStorage.getItem("api_logs") || "[]");
+    logs.push(message);
+    localStorage.setItem("api_logs", JSON.stringify(logs.slice(-100)));
+
+    console.error(message);
+  },
+};
+
 async function fetchWithAuth(endpoint: string, options: RequestInit = {}) {
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+  log.debug("\n=== API Request ===");
+  log.debug("Endpoint:", endpoint);
+  log.debug("Options:", {
     ...options,
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-      ...options.headers,
-    },
+    body: options.body ? JSON.parse(options.body as string) : undefined,
   });
 
-  if (!response.ok) {
-    if (response.status === 401 || response.status === 403) {
-      window.location.href = "/login";
-      throw new Error("Authentication failed");
+  try {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      ...options,
+      credentials: "include", // Let browser handle cookies
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        ...options.headers,
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      log.error("Response error:", {
+        status: response.status,
+        statusText: response.statusText,
+        body: errorText,
+      });
+
+      if (response.status === 401) {
+        window.location.href = "/login";
+        throw new Error("Authentication failed");
+      }
+      throw new Error(`API call failed: ${response.statusText} - ${errorText}`);
     }
 
-    let errorMessage = `API call failed: ${response.statusText}`;
-    try {
-      const errorData = await response.json();
-      errorMessage = errorData.message || errorMessage;
-    } catch {
-      // If parsing json fails, use default message
+    if (response.status === 204) {
+      return null;
     }
-    throw new Error(errorMessage);
-  }
 
-  const contentType = response.headers.get("content-type");
-  if (response.status === 204 || !contentType) {
-    return null;
+    const contentType = response.headers.get("content-type");
+    return contentType?.includes("application/json")
+      ? await response.json()
+      : response;
+  } catch (error) {
+    log.error("Request failed:", {
+      error,
+      endpoint,
+      options,
+    });
+    throw error;
   }
-
-  if (contentType.includes("application/json")) {
-    return response.json();
-  }
-
-  return response;
 }
 
 export const api = {
   login: async (name: string, email: string) => {
+    log.debug("\n=== Login Attempt ===");
+    log.debug("Credentials:", { name, email });
+    log.debug("Browser info:", {
+      userAgent: window.navigator.userAgent,
+      cookieEnabled: window.navigator.cookieEnabled,
+    });
+
     try {
-      return await fetchWithAuth("/auth/login", {
+      const response = await fetchWithAuth("/auth/login", {
         method: "POST",
         body: JSON.stringify({ name, email }),
       });
+
+      if (!response) {
+        return null;
+      }
+
+      log.debug("Login successful");
+      return response;
     } catch (error) {
-      console.error("Login failed:", error);
+      log.error("Login failed:", error);
       throw error;
     }
   },
 
   logout: async () => {
-    return fetchWithAuth("/auth/logout", {
-      method: "POST",
-    });
+    log.debug("\n=== Logout Attempt ===");
+    try {
+      const response = await fetchWithAuth("/auth/logout", {
+        method: "POST",
+      });
+      log.debug("Logout successful");
+      return response;
+    } catch (error) {
+      log.error("Logout failed:", error);
+      throw error;
+    }
   },
 
   getBreeds: async (): Promise<string[]> => {
@@ -72,8 +134,10 @@ export const api = {
   },
 
   searchDogs: async (params: DogSearchParams): Promise<SearchResponse> => {
-    const searchParams = new URLSearchParams();
+    log.debug("\n=== Search Dogs ===");
+    log.debug("Search params:", params);
 
+    const searchParams = new URLSearchParams();
     Object.entries(params).forEach(([key, value]) => {
       if (Array.isArray(value)) {
         value.forEach((v) => searchParams.append(key, v));
@@ -82,6 +146,7 @@ export const api = {
       }
     });
 
+    log.debug("Constructed URL params:", searchParams.toString());
     return fetchWithAuth(`/dogs/search?${searchParams.toString()}`);
   },
 
@@ -111,5 +176,12 @@ export const api = {
       method: "POST",
       body: JSON.stringify(zipCodes),
     });
+  },
+
+  viewLogs: () => {
+    const logs = JSON.parse(localStorage.getItem("api_logs") || "[]");
+    console.log("=== Stored API Logs ===");
+    logs.forEach((msg: string) => console.log(msg));
+    return logs;
   },
 };

@@ -10,14 +10,18 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Check for the auth cookie
   const authCookie = request.cookies.get("fetch-access-token");
 
   if (!authCookie) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  return NextResponse.next();
+  // Add minimal CORS headers
+  const response = NextResponse.next();
+  response.headers.set("Access-Control-Allow-Credentials", "true");
+  response.headers.set("Access-Control-Allow-Origin", "http://localhost:3000");
+
+  return response;
 }
 
 export const config = {
